@@ -1,0 +1,10 @@
+routes:
+  - uri: /sb/hello
+    upstream:
+      type: roundrobin
+      nodes:
+        "springboot:8080": 1
+    plugins:
+      proxy-rewrite:
+        uri: /api/hello
+#END
