@@ -1,3 +1,10 @@
 spring:
   application:
     name: hello
+  mvc:
+    log-request-details: true
+
+server:
+  tomcat:
+    accesslog:
+      enabled: false

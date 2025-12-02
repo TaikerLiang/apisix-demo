@@ -7,4 +7,22 @@ routes:
     plugins:
       proxy-rewrite:
         uri: /api/hello
+      elasticsearch-logger:
+        endpoint_addr: "http://elasticsearch:9200"
+        field:
+          index: "apisix-logs"
+        auth:
+          username: "elastic"
+          password: "changeme"
+        timeout: 10
+        log_format:
+          host: "$host"
+          client_ip: "$remote_addr"
+          request_time: "$request_time"
+          request_method: "$request_method"
+          request_uri: "$request_uri"
+          status: "$status"
+          upstream_addr: "$upstream_addr"
+          upstream_status: "$upstream_status"
+          upstream_response_time: "$upstream_response_time"
 #END
