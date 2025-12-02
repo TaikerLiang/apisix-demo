@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  springboot:
+    build:
+      context: ./springboot
+    container_name: springboot
+    ports:
+      - "8081:8080"
+    networks:
+      - apisix-net
+
+  apisix:
+    image: apache/apisix:3.7.0-debian
+    container_name: apisix
+    volumes:
+      - ./apisix/config.yaml:/usr/local/apisix/conf/config.yaml:ro
+    ports:
+      - "9080:9080"  # main gateway port
+    depends_on:
+      - springboot
+    networks:
+      - apisix-net
+
+  apisix-dashboard:
+    image: apache/apisix-dashboard:3.0.1
+    container_name: apisix-dashboard
+    ports:
+      - "9000:9000"
+    environment:
+      - DASHBOARD_VERSION=3.0.1
+    networks:
+      - apisix-net
+
+networks:
+  apisix-net:
+    driver: bridge
