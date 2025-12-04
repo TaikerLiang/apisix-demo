@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: apisix-demo
+  labels:
+    name: apisix-demo
+    app: apisix-spring-boot-demo
