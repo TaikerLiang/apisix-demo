@@ -3,6 +3,17 @@ spring:
     name: hello
   mvc:
     log-request-details: true
+  datasource:
+    url: jdbc:postgresql://localhost:5432/hello
+    username: taiker
+    password: dev
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: None
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 
 server:
   tomcat:

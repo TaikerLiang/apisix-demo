@@ -1,0 +1,40 @@
+databaseChangeLog:
+- changeSet:
+    id: 1765816759236-1
+    author: taiker (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: usersPK
+            name: id
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+            name: created_at
+            type: TIMESTAMP(6) WITHOUT TIME ZONE
+        - column:
+            constraints:
+              nullable: false
+            name: role
+            type: VARCHAR(16)
+        - column:
+            constraints:
+              nullable: false
+            name: username
+            type: VARCHAR(64)
+        tableName: users
+- changeSet:
+    id: 1765816759236-2
+    author: taiker (generated)
+    changes:
+    - addUniqueConstraint:
+        columnNames: username
+        constraintName: UC_USERSUSERNAME_COL
+        tableName: users
+
