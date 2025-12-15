@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: elasticsearch
+  namespace: elk-stack
+  labels:
+    app: elasticsearch
+spec:
+  serviceName: elasticsearch
+  replicas: 1  # Single node for local development
+  selector:
+    matchLabels:
+      app: elasticsearch
+  template:
+    metadata:
+      labels:
+        app: elasticsearch
+    spec:
+      # Init container to set vm.max_map_count
+      initContainers:
+        - name: fix-permissions
+          image: busybox:1.37
+          command: ['sh', '-c', 'chown -R 1000:1000 /usr/share/elasticsearch/data']
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: data
+              mountPath: /usr/share/elasticsearch/data
+        - name: increase-vm-max-map
+          image: busybox:1.37
+          command: ['sysctl', '-w', 'vm.max_map_count=262144']
+          securityContext:
+            privileged: true
+      containers:
+        - name: elasticsearch
+          image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
+          ports:
+            - name: http
+              containerPort: 9200
+              protocol: TCP
+            - name: transport
+              containerPort: 9300
+              protocol: TCP
+          env:
+            # Single-node cluster for local development
+            - name: discovery.type
+              value: "single-node"
+            # Disable security for local development (ENABLE IN PRODUCTION!)
+            - name: xpack.security.enabled
+              value: "false"
+            - name: xpack.security.enrollment.enabled
+              value: "false"
+            # Memory settings
+            - name: ES_JAVA_OPTS
+              value: "-Xms512m -Xmx512m"
+            # Cluster name
+            - name: cluster.name
+              value: "apisix-demo-logs"
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
+          volumeMounts:
+            - name: data
+              mountPath: /usr/share/elasticsearch/data
+          readinessProbe:
+            httpGet:
+              path: /_cluster/health
+              port: 9200
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /_cluster/health
+              port: 9200
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            timeoutSeconds: 5
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 10Gi

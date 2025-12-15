@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kibana
+  namespace: elk-stack
+  labels:
+    app: kibana
+spec:
+  type: NodePort  # NodePort for easy local access
+  ports:
+    - name: http
+      port: 5601
+      targetPort: 5601
+      protocol: TCP
+      nodePort: 30561  # Access via localhost:30561
+  selector:
+    app: kibana

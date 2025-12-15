@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kibana
+  namespace: elk-stack
+  labels:
+    app: kibana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kibana
+  template:
+    metadata:
+      labels:
+        app: kibana
+    spec:
+      containers:
+        - name: kibana
+          image: docker.elastic.co/kibana/kibana:8.17.0
+          ports:
+            - name: http
+              containerPort: 5601
+              protocol: TCP
+          env:
+            # Elasticsearch connection
+            - name: ELASTICSEARCH_HOSTS
+              value: "http://elasticsearch:9200"
+            # Server settings
+            - name: SERVER_NAME
+              value: "kibana"
+            - name: SERVER_HOST
+              value: "0.0.0.0"
+            # Disable security for local development (ENABLE IN PRODUCTION!)
+            - name: ELASTICSEARCH_SSL_VERIFICATIONMODE
+              value: "none"
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+          readinessProbe:
+            httpGet:
+              path: /api/status
+              port: 5601
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /api/status
+              port: 5601
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            timeoutSeconds: 5
